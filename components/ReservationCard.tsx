@@ -92,68 +92,44 @@ const [email, setEmail] = useState("");
   }
 
 
-  function handleEventsSubmit(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
-    e.preventDefault();
+async function handleReservationSubmit(
+  e: React.FormEvent<HTMLFormElement>
+) {
+  e.preventDefault();
 
-    const form = e.currentTarget;
+  const form = e.currentTarget;
 
-    const honeypot =
-      (
-        form.elements.namedItem(
-          "website"
-        ) as HTMLInputElement
-      )?.value;
+  const honeypot = (
+    form.elements.namedItem("website") as HTMLInputElement
+  )?.value;
 
-    if (honeypot) return;
+  if (honeypot) return;
 
-    submitWithCooldown(
-      "livingroom-event-submitted"
-    );
+  const { error } = await supabase
+    .from("reservations")
+    .insert([
+      {
+        full_name: fullName,
+        phone,
+        email,
+        reservation_date:
+          selectedDate?.toISOString().split("T")[0],
+        reservation_time: selectedTime,
+        guests,
+        status: "pending",
+      },
+    ]);
+
+  if (error) {
+    console.error(error);
+    alert(JSON.stringify(error, null, 2));
+    return;
   }
 
-
-  async function handleReservationSubmit(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
-    e.preventDefault();
-
-    const form = e.currentTarget;
-
-    const honeypot =
-      (
-        form.elements.namedItem(
-          "website"
-        ) as HTMLInputElement
-      )?.value;
-
-    if (honeypot) return;
-
-    const { data, error } = await supabase
-  .from("reservations")
-  .insert([
-    {
-  full_name: fullName,
-  phone,
-  email,
-  reservation_date:
-    selectedDate?.toISOString().split("T")[0],
-  reservation_time: selectedTime,
-  guests,
-},
-  ])
-  .select();
-
-if (error) {
-  console.error(error);
-  return;
+  submitWithCooldown(
+    "livingroom-reservation-submitted"
+  );
 }
-
-submitWithCooldown(
-  "livingroom-reservation-submitted"
-);
-  }
 
 
   function continueFromGuests() {
@@ -164,7 +140,43 @@ submitWithCooldown(
 
     setReserveStep("time");
   }
+async function handleEventsSubmit(
+  e: React.FormEvent<HTMLFormElement>
+) {
+  e.preventDefault();
 
+  const form = e.currentTarget;
+
+  const honeypot = (
+    form.elements.namedItem("website") as HTMLInputElement
+  )?.value;
+
+  if (honeypot) return;
+
+  const description = (
+    form.elements.namedItem("description") as HTMLTextAreaElement
+  )?.value;
+
+  const { error } = await supabase
+    .from("events")
+    .insert([
+      {
+        full_name: fullName,
+        phone,
+        email,
+        description,
+        status: "pending",
+      },
+    ]);
+
+  if (error) {
+    console.error(error);
+    alert(JSON.stringify(error, null, 2));
+    return;
+  }
+
+  submitWithCooldown("livingroom-event-submitted");
+}
 
   function progressWidth() {
     if (reserveStep === "date")
@@ -209,7 +221,7 @@ submitWithCooldown(
 
           {/* MENU */}
           <a
-            href="https://qr1.me-qr.com/mobile/pdf/a6e82d73-19d6-41ae-9b94-85948e5824be"
+            href="https://drive.google.com/file/d/1e0FIGShenmYIDtKWvmlzLAvp1d9eXzD0/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
             className="
@@ -829,85 +841,79 @@ submitWithCooldown(
             </div>
 
             <form
-              onSubmit={handleEventsSubmit}
-              className="space-y-5"
-            >
-              <input
-                type="text"
-                name="website"
-                className="hidden"
-                tabIndex={-1}
-                autoComplete="off"
-              />
+  onSubmit={handleEventsSubmit}
+  className="space-y-5"
+>
+  <input
+    type="text"
+    name="website"
+    className="hidden"
+    tabIndex={-1}
+    autoComplete="off"
+  />
 
-              <input
-                required
-                type="text"
-                placeholder="Full Name"
-                className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
-              />
+ <input
+  required
+  type="text"
+  name="full_name"
+  value={fullName}
+  onChange={(e) => setFullName(e.target.value)}
+  placeholder="Full Name"
+  className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
+/>
 
-              <input
-                required
-                type="tel"
-                placeholder="Mobile Number"
-                inputMode="numeric"
-                pattern="[0-9]{10,11}"
-maxLength={11}
-onInput={(e) => {
-  e.currentTarget.value =
-    e.currentTarget.value.replace(/\D/g, "").slice(0, 11);
-}}
-                className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
-              />
+  <input
+  required
+  type="tel"
+  name="phone"
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+  placeholder="Mobile Number"
+  inputMode="numeric"
+  pattern="[0-9]{10,11}"
+  maxLength={11}
+  onInput={(e) => {
+    e.currentTarget.value = e.currentTarget.value
+      .replace(/\D/g, "")
+      .slice(0, 11);
+  }}
+  className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
+/>
+<input
+  required
+  type="email"
+  name="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  placeholder="Email Address"
+  className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
+/>
 
-              <input
-                required
-                type="email"
-                placeholder="Email Address"
-                className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4"
-              />
+ <textarea
+  required
+  rows={5}
+  name="description"
+  placeholder="Special requests or event details"
+  className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4 resize-none"
+/>
 
-              <textarea
-                rows={5}
-                placeholder="Special requests or event details (optional)"
-                className="w-full rounded-2xl border border-[#E8DDD2] px-5 py-4 resize-none"
-              />
+  <div className="flex gap-4 pt-2">
+    <button
+      type="button"
+      onClick={() => setView("home")}
+      className="flex-1 rounded-2xl border border-[#E8DDD2] py-4 font-semibold text-[#6E6259]"
+    >
+      Back
+    </button>
 
-              <div className="flex gap-4 pt-2">
-
-                <button
-                  type="button"
-                  onClick={() => setView("home")}
-                  className="
-                    flex-1
-                    rounded-2xl
-                    border border-[#E8DDD2]
-                    py-4
-                    font-semibold
-                    text-[#6E6259]
-                  "
-                >
-                  Back
-                </button>
-
-                <button
-                  type="submit"
-                  className="
-                    flex-1
-                    rounded-2xl
-                    bg-[#285C5F]
-                    py-4
-                    text-white
-                    font-semibold
-                  "
-                >
-                  Send Inquiry
-                </button>
-
-              </div>
-            </form>
-
+    <button
+      type="submit"
+      className="flex-1 rounded-2xl bg-[#285C5F] py-4 font-semibold text-white"
+    >
+      Send Inquiry
+    </button>
+  </div>
+</form>
           </div>
         )}
 {/* SUCCESS */}
