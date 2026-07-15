@@ -540,9 +540,11 @@ async function handleEventsSubmit(
                 <div className="flex items-center justify-center gap-8 mt-10">
 
                   <button
-                    onClick={() =>
-                      setGuests(Math.max(1, guests - 1))
-                    }
+                    onClick={() => {
+                      const next = Math.max(1, guests - 1);
+                      setGuests(next);
+                      if (next <= 8) setLargePartyWarning(false);
+                    }}
                     className="
                       w-14 h-14
                       rounded-full
@@ -572,6 +574,49 @@ async function handleEventsSubmit(
                   </button>
 
                 </div>
+
+                {largePartyWarning && (
+                  <div
+                    className="
+                      mt-6
+                      rounded-2xl
+                      bg-[#FDF3E7]
+                      border border-[#F4C7A3]
+                      px-6
+                      py-5
+                      text-left
+                    "
+                  >
+                    <p className="text-[#3A2A21] font-semibold">
+                      Looks like you have a special occasion! 🎉
+                    </p>
+
+                    <p className="mt-1 text-[#7A7068]">
+                      For parties larger than 8, our Events team can take
+                      much better care of you. Why not head to our events
+                      section?
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLargePartyWarning(false);
+                        setView("events");
+                      }}
+                      className="
+                        mt-4
+                        rounded-2xl
+                        bg-[#285C5F]
+                        text-white
+                        font-semibold
+                        px-6
+                        py-3
+                      "
+                    >
+                      Go to Events →
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex gap-4 mt-10">
                   <button
