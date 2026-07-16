@@ -23,6 +23,7 @@ const nunito = Nunito_Sans({
 export const metadata: Metadata = {
   title: "Living Room Café",
   description: "Reserve your space",
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
