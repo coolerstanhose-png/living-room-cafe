@@ -106,9 +106,7 @@ export default async function DashboardPage() {
 
                     <td>{r.phone}</td>
 
-                    <td className="hidden lg:table-cell">
-                      {r.email}
-                    </td>
+                    <td>{r.email}</td>
 
                     <td>{r.reservation_date}</td>
 
