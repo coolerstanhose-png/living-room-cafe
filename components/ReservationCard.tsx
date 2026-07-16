@@ -31,6 +31,9 @@ const [email, setEmail] = useState("");
   const [largePartyWarning, setLargePartyWarning] =
     useState(false);
 
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
   function generateDates() {
     const dates = [];
 
@@ -97,6 +100,8 @@ async function handleReservationSubmit(
 ) {
   e.preventDefault();
 
+  if (isSubmitting) return;
+
   const form = e.currentTarget;
 
   const honeypot = (
@@ -104,6 +109,8 @@ async function handleReservationSubmit(
   )?.value;
 
   if (honeypot) return;
+
+  setIsSubmitting(true);
 
   const { error } = await supabase
     .from("reservations")
@@ -123,12 +130,15 @@ async function handleReservationSubmit(
   if (error) {
     console.error(error);
     alert(JSON.stringify(error, null, 2));
+    setIsSubmitting(false);
     return;
   }
 
   submitWithCooldown(
     "livingroom-reservation-submitted"
   );
+
+  setIsSubmitting(false);
 }
 
 
@@ -145,6 +155,8 @@ async function handleEventsSubmit(
 ) {
   e.preventDefault();
 
+  if (isSubmitting) return;
+
   const form = e.currentTarget;
 
   const honeypot = (
@@ -156,6 +168,8 @@ async function handleEventsSubmit(
   const description = (
     form.elements.namedItem("description") as HTMLTextAreaElement
   )?.value;
+
+  setIsSubmitting(true);
 
   const { error } = await supabase
     .from("events")
@@ -172,10 +186,13 @@ async function handleEventsSubmit(
   if (error) {
     console.error(error);
     alert(JSON.stringify(error, null, 2));
+    setIsSubmitting(false);
     return;
   }
 
   submitWithCooldown("livingroom-event-submitted");
+
+  setIsSubmitting(false);
 }
 
   function progressWidth() {
@@ -846,6 +863,7 @@ async function handleEventsSubmit(
 
                   <button
                     type="submit"
+                    disabled={isSubmitting}
                     className="
                       flex-1
                       rounded-2xl
@@ -853,9 +871,10 @@ async function handleEventsSubmit(
                       py-4
                       text-white
                       font-semibold
+                      disabled:opacity-50
                     "
                   >
-                    Reserve
+                    {isSubmitting ? "Reserving…" : "Reserve"}
                   </button>
 
                 </div>
@@ -953,9 +972,10 @@ async function handleEventsSubmit(
 
     <button
       type="submit"
-      className="flex-1 rounded-2xl bg-[#285C5F] py-4 font-semibold text-white"
+      disabled={isSubmitting}
+      className="flex-1 rounded-2xl bg-[#285C5F] py-4 font-semibold text-white disabled:opacity-50"
     >
-      Send Inquiry
+      {isSubmitting ? "Sending…" : "Send Inquiry"}
     </button>
   </div>
 </form>
