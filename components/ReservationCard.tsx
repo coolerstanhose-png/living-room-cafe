@@ -238,7 +238,7 @@ async function handleEventsSubmit(
 
           {/* MENU */}
           <a
-            href="https://drive.google.com/file/d/1e0FIGShenmYIDtKWvmlzLAvp1d9eXzD0/view?usp=sharing"
+            href="https://drive.google.com/file/d/1C7mHbd034eHi3YsdEkXg1_PUMt72uNSl/view?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
             className="
